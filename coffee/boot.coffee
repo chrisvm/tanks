@@ -11,6 +11,7 @@ class Boot
 	constructor: () ->
 		# add the renderer to the document body
 		@renderer = PIXI.autoDetectRenderer 900, 600, backgroundColor: 0xFFFFFF
+		@interaction = @renderer.plugins.interaction
 		$('body').append @renderer.view
 
 		# create scene graph
@@ -23,10 +24,11 @@ class Boot
 		@stage.addChild staticG.graphics
 
 		# add player tank
-		pTank = new PlayerTank()
+		pTank = new PlayerTank @interaction.mouse
 		@stage.addChild pTank
 		pTank.position.x = 200
 		pTank.position.y = 150
+
 
 		# start the anim loop
 		@update()
@@ -34,6 +36,9 @@ class Boot
 	update: () ->
 		# render the game
 		@renderer.render @stage
+
+		for c in @stage.children
+			c.update?()
 
 		# anim loop
 		requestAnimationFrame () => @update()

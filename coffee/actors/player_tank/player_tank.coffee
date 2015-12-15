@@ -1,9 +1,10 @@
 PIXI = require 'pixi.js'
+TankTop = require './tank_top'
 
 
 class PlayerTank extends PIXI.Container
 
-	constructor: () ->
+	constructor: (@mouse) ->
 		# call constructor
 		super()
 
@@ -11,11 +12,21 @@ class PlayerTank extends PIXI.Container
 		@graphics = new PIXI.Graphics()
 		@addChild @graphics
 		@pixelScale = 70
+		@platformScale = 0.75
 
-		@init()
+		# add the tank top
+		@tankTop = new TankTop @mouse
+		s = (1.0 - @platformScale) / 2.0
+		@tankTop.setPixelScale @pixelScale * @platformScale
+		@tankTop.x = @pixelScale / 2.0
+		@tankTop.y = @pixelScale / 2.0
+		@addChild @tankTop
 
-	init: () ->
+		@render()
+
+	render: () ->
 		g = @graphics
+		g.clear()
 
 		# draw the threads
 		threadVerts = [[0, 1], [0.30, 1], [0.30, 0], [0, 0]]
@@ -31,11 +42,18 @@ class PlayerTank extends PIXI.Container
 
 		# draw the top
 		topVerts = [[0, 1], [1, 1], [1, 0], [0, 0]]
-		scale = 0.70
-		t = 0.15
+		scale = @platformScale
+		t = (1.0 - @platformScale) / 2.0
 		topVerts = (new PIXI.Point (v[0] * scale + t) * @pixelScale, (v[1] * scale + t) * @pixelScale for v in topVerts)
 		g.lineStyle 3, 0xAAAAAA, 0.50
 		g.beginFill 0x221122
 		g.drawPolygon topVerts
+
+		# render the tank top
+		@tankTop.render()
+
+	update: () ->
+		for c in @children
+			c.update?()
 
 module.exports = PlayerTank
