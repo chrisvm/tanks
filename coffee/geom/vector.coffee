@@ -10,7 +10,10 @@ class Vector
 		@y = y or 0
 
 	clone: ->
-		new (PIXI.Vector)(@x, @y)
+		return new Vector(@x, @y)
+
+	copy: (v) ->
+		@set v.x, v.y
 
 	add: (v) ->
 		@x += v.x
@@ -31,6 +34,11 @@ class Vector
 		@x *= s
 		@y *= s
 		this
+
+	equals: (p) ->
+		if p.x == @x and p.y == @y
+			return trues
+		return false
 
 	divideScalar: (s) ->
 		if s == 0
@@ -53,6 +61,9 @@ class Vector
 
 	normalize: ->
 		@divideScalar @length()
+
+	neg: ->
+		@multiplyScalar -1
 
 	distanceTo: (v) ->
 		Math.sqrt @distanceToSq(v)
@@ -105,4 +116,5 @@ class Vector
 		@x = @x * Math.cos(theta) - (@y * Math.sin(theta))
 		@y = xtemp * Math.sin(theta) + @y * Math.cos(theta)
 		this
+
 module.exports = Vector

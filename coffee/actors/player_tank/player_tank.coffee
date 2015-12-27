@@ -1,56 +1,35 @@
+path = require 'path'
 PIXI = require 'pixi.js'
-TankTop = require './tank_top'
+PIXI.Point.prototype = require('../../geom/vector').prototype
+resources = require '../../loader'
 
 
 class PlayerTank extends PIXI.Container
 
-	constructor: (@mouse) ->
+	constructor: (@res) ->
 		# call constructor
 		super()
 
-		# create the graphics
-		@graphics = new PIXI.Graphics()
-		@addChild @graphics
-		@pixelScale = 70
-		@platformScale = 0.75
+		# get assets dir
+		assetsDir = path.resolve '../../assets'
 
-		# add the tank top
-		@tankTop = new TankTop @mouse
-		s = (1.0 - @platformScale) / 2.0
-		@tankTop.setPixelScale @pixelScale * @platformScale
-		@tankTop.x = @pixelScale / 2.0
-		@tankTop.y = @pixelScale / 2.0
-		@addChild @tankTop
+		# create the sprites
+		@threads = new PIXI.Sprite resources.tank.threads
+		@top = new PIXI.Sprite resources.tank.top
+		@base = new PIXI.Sprite resources.tank.base
+		@barrel = new PIXI.Sprite resources.tank.barrel
 
-		@render()
+		# get reference to mouse from resources
+		@mouse = @res.mouse
 
-	render: () ->
-		g = @graphics
-		g.clear()
+		# add created sprites to self container
+		toAdd = [@threads, @top, @base, @barrel]
+		for sprite in toAdd
+			# set the anchor point to the middle of the texture
+			sprite.anchor 0.5, 0.5
 
-		# draw the threads
-		threadVerts = [[0, 1], [0.30, 1], [0.30, 0], [0, 0]]
-		leftThreadVerts = ([v[0] * @pixelScale, v[1] * @pixelScale] for v in threadVerts)
-		leftThreadVerts = (new PIXI.Point v[0], v[1] for v in leftThreadVerts)
-		g.lineStyle 2, 0xAAAAAA, 0.56
-		g.drawPolygon leftThreadVerts
-
-		rightThreadVerts = ([(v[0] + 0.70) * @pixelScale, v[1] * @pixelScale] for v in threadVerts)
-		rightThreadVerts = (new PIXI.Point v[0], v[1] for v in rightThreadVerts)
-		g.lineStyle 2, 0xAAAAAA, 0.56
-		g.drawPolygon rightThreadVerts
-
-		# draw the top
-		topVerts = [[0, 1], [1, 1], [1, 0], [0, 0]]
-		scale = @platformScale
-		t = (1.0 - @platformScale) / 2.0
-		topVerts = (new PIXI.Point (v[0] * scale + t) * @pixelScale, (v[1] * scale + t) * @pixelScale for v in topVerts)
-		g.lineStyle 3, 0xAAAAAA, 0.50
-		g.beginFill 0x221122
-		g.drawPolygon topVerts
-
-		# render the tank top
-		@tankTop.render()
+			# add sprite to container
+			@addChild sprite
 
 	update: () ->
 		for c in @children
